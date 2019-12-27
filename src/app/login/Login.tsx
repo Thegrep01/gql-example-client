@@ -35,7 +35,7 @@ function Login(props: any) {
       const record = getRecord(data);
       if (record) {
         localStorage.setItem("token", record.accessToken);
-        history.push("/");
+        history.replace("/");
       } else {
         notification.error({
           message: "Wrong password"

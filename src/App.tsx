@@ -4,26 +4,20 @@ import ApolloClient, { InMemoryCache } from "apollo-boost";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { LoginForm } from "./app/login/Login";
 import { RegisterForm } from "./app/register/Register";
-import { typeDefs } from "./graphql/local/schema";
-import { resolvers } from "./graphql/local/resolvers";
-import { GET_IS_LOGGED } from "./graphql/local/queries";
+
 const cache = new InMemoryCache();
 
 const client = new ApolloClient({
   uri: "http://localhost:8080/graphql",
-  cache,
-  typeDefs,
-  resolvers
+  cache
 });
 
 function ProtectedRoute({ component: Component }: any) {
-  const { loading, data } = useQuery(GET_IS_LOGGED);
-
   return (
     <Route
       path="/"
       render={routeProps => {
-        return !loading && !data.isLogged ? (
+        return !localStorage.getItem("token") ? (
           <LoginForm />
         ) : (
           <Component {...routeProps} />
