@@ -1,8 +1,38 @@
-import { Form, Input, Button } from "antd";
-import React from "react";
+import { Form, Input, Button, notification } from "antd";
+import React, { useEffect } from "react";
 import "./Register.css";
+import { useMutation } from "@apollo/react-hooks";
+import { SIGN_UP } from "../../graphql/mutations/auth.mutations";
+import { useHistory } from "react-router-dom";
+
 function Register(props: any) {
   const { getFieldDecorator } = props.form;
+  const [signUp, { data }] = useMutation(SIGN_UP);
+  const history = useHistory();
+
+  const getRecord = (data: any) => {
+    const {
+      auth: {
+        signUp: { record }
+      }
+    } = data;
+    return record;
+  };
+
+  useEffect(() => {
+    if (data) {
+      const record = getRecord(data);
+      if (record) {
+        localStorage.setItem("token", record.accessToken);
+        history.replace("/");
+      } else {
+        notification.error({
+          message: "Such user exists",
+          description: "Change your login"
+        });
+      }
+    }
+  }, [data]);
 
   const compareToFirstPassword = (_: any, value: any, callback: any) => {
     const { form } = props;
@@ -17,6 +47,9 @@ function Register(props: any) {
     e.preventDefault();
     props.form.validateFieldsAndScroll((err: any, values: any) => {
       if (!err) {
+        signUp({
+          variables: { login: values.login, password: values.password }
+        });
         console.log("Received values of form: ", values);
       }
     });
