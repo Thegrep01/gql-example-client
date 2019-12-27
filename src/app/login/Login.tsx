@@ -1,20 +1,59 @@
-import React from "react";
-import { Form, Icon, Input, Button } from "antd";
+import React, { useEffect } from "react";
+import { Form, Icon, Input, Button, notification } from "antd";
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { useMutation } from "@apollo/react-hooks";
+import { SIGN_IN } from "../../graphql/mutations/auth.mutations";
 function Login(props: any) {
   const { getFieldDecorator } = props.form;
+  const [signIn, { data }] = useMutation(SIGN_IN);
+  const history = useHistory();
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    props.form.validateFieldsAndScroll((err: any, values: any) => {
+      if (!err) {
+        signIn({
+          variables: { login: values.login, password: values.password }
+        });
+        console.log("Received values of form: ", values);
+      }
+    });
+  };
+
+  const getRecord = (data: any) => {
+    const {
+      auth: {
+        signIn: { record }
+      }
+    } = data;
+    return record;
+  };
+
+  useEffect(() => {
+    if (data) {
+      const record = getRecord(data);
+      if (record) {
+        localStorage.setItem("token", record.accessToken);
+        history.push("/");
+      } else {
+        notification.error({
+          message: "Wrong password"
+        });
+      }
+    }
+  }, [data]);
 
   return (
     <div className="wrapper">
-      <Form className="login-form">
+      <Form className="login-form" onSubmit={handleSubmit}>
         <Form.Item>
-          {getFieldDecorator("username", {
-            rules: [{ required: true, message: "Please input your username!" }]
+          {getFieldDecorator("login", {
+            rules: [{ required: true, message: "Please input your login!" }]
           })(
             <Input
               prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-              placeholder="Username"
+              placeholder="Login"
             />
           )}
         </Form.Item>

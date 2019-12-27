@@ -11,3 +11,15 @@ export const SIGN_UP = gql`
     }
   }
 `;
+
+export const SIGN_IN = gql`
+  mutation SignIn($login: String!, $password: String!) {
+    auth {
+      signIn(user: { login: $login, password: $password }) {
+        record {
+          accessToken
+        }
+      }
+    }
+  }
+`;

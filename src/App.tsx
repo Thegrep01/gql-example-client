@@ -13,6 +13,7 @@ function ProtectedRoute({ component: Component }: any) {
   const [isLogged, setIsLogged] = useState(true);
 
   useEffect(() => {
+    console.log(localStorage.getItem("token"));
     setIsLogged(!!localStorage.getItem("token"));
   }, []);
 
