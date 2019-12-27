@@ -1,27 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { ApolloProvider } from "@apollo/react-hooks";
-import ApolloClient from "apollo-boost";
+import React from "react";
+import { ApolloProvider, useQuery } from "@apollo/react-hooks";
+import ApolloClient, { InMemoryCache } from "apollo-boost";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { LoginForm } from "./app/login/Login";
 import { RegisterForm } from "./app/register/Register";
+import { typeDefs } from "./graphql/local/schema";
+import { resolvers } from "./graphql/local/resolvers";
+import { GET_IS_LOGGED } from "./graphql/local/queries";
+const cache = new InMemoryCache();
 
 const client = new ApolloClient({
-  uri: "http://localhost:8080/graphql"
+  uri: "http://localhost:8080/graphql",
+  cache,
+  typeDefs,
+  resolvers
 });
 
 function ProtectedRoute({ component: Component }: any) {
-  const [isLogged, setIsLogged] = useState(true);
-
-  useEffect(() => {
-    console.log(localStorage.getItem("token"));
-    setIsLogged(!!localStorage.getItem("token"));
-  }, []);
+  const { loading, data } = useQuery(GET_IS_LOGGED);
 
   return (
     <Route
       path="/"
       render={routeProps => {
-        return isLogged ? <Component {...routeProps} /> : <LoginForm />;
+        return !loading && !data.isLogged ? (
+          <LoginForm />
+        ) : (
+          <Component {...routeProps} />
+        );
       }}
     />
   );
