@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Table } from "antd";
 import { Input } from "antd";
 import "./Main.css";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import { GET_JOKES } from "../../graphql/queries/jokes.queries";
+import { ADD_JOKE } from "../../graphql/mutations/jokes.mutations";
 
 const { Search } = Input;
 export function Main() {
@@ -22,6 +23,21 @@ export function Main() {
 
   const { loading, data } = useQuery(GET_JOKES);
   const [dataForRender, setDataForRender] = useState();
+  const [joke, setJoke] = useState();
+  const [addJoke, { loading: mutationLoading }] = useMutation(ADD_JOKE, {
+    update(cache, { data: { jokes } }) {
+      const {
+        createJoke: { record }
+      } = jokes;
+
+      const { allJokes }: any = cache.readQuery({ query: GET_JOKES });
+      console.log(allJokes);
+      cache.writeQuery({
+        query: GET_JOKES,
+        data: { allJokes: allJokes ? [record, ...allJokes] : [record] }
+      });
+    }
+  });
 
   useEffect(() => {
     if (data) {
@@ -35,6 +51,11 @@ export function Main() {
     }
   }, [data]);
 
+  const handleSubmit = (value: string) => {
+    addJoke({ variables: { joke: value } });
+    setJoke("");
+  };
+
   return (
     <>
       <Search
@@ -42,7 +63,10 @@ export function Main() {
         placeholder="add joke"
         enterButton="Add"
         size="large"
-        onSearch={value => console.log(value)}
+        value={joke}
+        onChange={e => setJoke(e.target.value)}
+        loading={mutationLoading}
+        onSearch={handleSubmit}
       />
       <Table
         className="padding-h"
