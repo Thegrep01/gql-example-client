@@ -74,7 +74,7 @@ cache.writeData({
 
 function ProtectedRoute({ component: Component }: any) {
   const { loading, data } = useQuery(CHECK_LOGGED_STATUS);
-  console.log(data);
+
   return (
     <Route
       path="/"

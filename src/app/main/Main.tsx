@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Table } from "antd";
 import { Input } from "antd";
 import "./Main.css";
@@ -20,28 +20,19 @@ export function Main() {
     }
   ];
 
-  const dataM = [
-    {
-      key: "1",
-      joke: "John Brown",
-      author: 32
-    },
-    {
-      key: "2",
-      joke: "Jim Green",
-      author: 42
-    },
-    {
-      key: "3",
-      joke: "Joe Black",
-      author: 32
-    }
-  ];
-
   const { loading, data } = useQuery(GET_JOKES);
+  const [dataForRender, setDataForRender] = useState();
 
   useEffect(() => {
-    console.log(data);
+    if (data) {
+      setDataForRender(
+        data.allJokes.map((item: any) => ({
+          key: item.id,
+          joke: item.joke,
+          author: item.author.login
+        }))
+      );
+    }
   }, [data]);
 
   return (
@@ -56,7 +47,7 @@ export function Main() {
       <Table
         className="padding-h"
         columns={columns}
-        dataSource={dataM}
+        dataSource={dataForRender}
         loading={loading}
       />
     </>
