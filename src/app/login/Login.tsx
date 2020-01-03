@@ -4,9 +4,11 @@ import "./Login.css";
 import { Link, useHistory } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import { SIGN_IN } from "../../graphql/mutations/auth.mutations";
+import { LOG_IN } from "../../graphql/local";
 function Login(props: any) {
   const { getFieldDecorator } = props.form;
   const [signIn, { data }] = useMutation(SIGN_IN);
+  const [changeStatus] = useMutation(LOG_IN);
   const history = useHistory();
 
   const handleSubmit = (e: any) => {
@@ -35,6 +37,11 @@ function Login(props: any) {
       const record = getRecord(data);
       if (record) {
         localStorage.setItem("token", record.accessToken);
+        changeStatus({
+          variables: {
+            status: true
+          }
+        });
         history.replace("/");
       } else {
         notification.error({

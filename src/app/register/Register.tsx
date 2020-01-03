@@ -4,10 +4,13 @@ import "./Register.css";
 import { useMutation } from "@apollo/react-hooks";
 import { SIGN_UP } from "../../graphql/mutations/auth.mutations";
 import { useHistory } from "react-router-dom";
+import { LOG_IN } from "../../graphql/local";
 
 function Register(props: any) {
   const { getFieldDecorator } = props.form;
   const [signUp, { data }] = useMutation(SIGN_UP);
+  const [changeStatus] = useMutation(LOG_IN);
+
   const history = useHistory();
 
   const getRecord = (data: any) => {
@@ -49,6 +52,11 @@ function Register(props: any) {
       if (!err) {
         signUp({
           variables: { login: values.login, password: values.password }
+        });
+        changeStatus({
+          variables: {
+            status: true
+          }
         });
         console.log("Received values of form: ", values);
       }
