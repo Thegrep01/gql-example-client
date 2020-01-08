@@ -5,13 +5,7 @@ export const ADD_JOKE = gql`
     jokes {
       createJoke(joke: $joke) {
         error
-        record {
-          id
-          joke
-          author {
-            login
-          }
-        }
+        recordId
       }
     }
   }
